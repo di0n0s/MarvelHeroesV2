@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MarvelHeroes</string>
+    <string name="links">Links</string>
+    <string name="detalle">Detalle</string>
+    <string name="wiki">Wiki</string>
+    <string name="comics">Comics</string>
+    <string name="resources">Recursos</string>
+    <string name="looking_for">Busca tu súper-héroe</string>
+    <string name="looking_for_name">nombre a buscar...</string>
+    <string name="tab_comics">COMICS</string>
+    <string name="tab_eventos">EVENTOS</string>
+</resources>

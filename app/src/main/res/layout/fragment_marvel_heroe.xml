@@ -1,0 +1,101 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent" 
+              android:layout_height="match_parent" 
+              android:orientation="vertical" 
+              tools:context="net.opentrends.marvelheroes.MarvelHeroeFragment">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/marvel_heroe_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:padding="4dp"/>
+
+        <TextView
+            android:id="@+id/marvel_heroe_name_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/marvel_heroe_image_view"
+            android:textStyle="bold"
+            android:padding="4dp"
+            tools:text="MarvelHeroe Name"/>
+
+        <TextView
+            android:id="@+id/marvel_heroe_description_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/marvel_heroe_image_view"
+            android:layout_below="@id/marvel_heroe_name_text_view"
+            android:padding="4dp"
+            tools:text="MarvelHeroe Description"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="@string/links"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical|center_horizontal">
+
+        <Button
+            android:id="@+id/detail_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="4dp"
+            android:text="@string/detalle"
+            android:textAllCaps="false"/>
+
+        <Button
+            android:id="@+id/wiki_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="4dp"
+            android:text="@string/wiki"
+            android:textAllCaps="false"/>
+
+        <Button
+            android:id="@+id/comics_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="4dp"
+            android:text="@string/comics"
+            android:textAllCaps="false"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="@string/resources"/>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabGravity="fill"
+        app:tabMode="fixed"/>
+
+    <android.support.v7.widget.RecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/comics_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context="net.opentrends.marvelheroes.MarvelHeroeFragment">
+
+    </android.support.v7.widget.RecyclerView>
+
+</LinearLayout>
