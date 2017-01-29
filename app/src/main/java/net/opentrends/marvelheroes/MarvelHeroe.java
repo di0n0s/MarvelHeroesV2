@@ -19,6 +19,9 @@ public class MarvelHeroe {
     private List<MarvelComic> mMarvelComics;
     private int mEventsNumber;
     private List<MarvelEvent> mMarvelEvents;
+    private String mDetails;
+    private String mWiki;
+    private String mComics;
 
     public MarvelHeroe() {
     }
@@ -85,6 +88,30 @@ public class MarvelHeroe {
 
     public void setMarvelEvents(List<MarvelEvent> marvelEvents) {
         mMarvelEvents = marvelEvents;
+    }
+
+    public String getDetails() {
+        return mDetails;
+    }
+
+    public void setDetails(String details) {
+        mDetails = details;
+    }
+
+    public String getWiki() {
+        return mWiki;
+    }
+
+    public void setWiki(String wiki) {
+        mWiki = wiki;
+    }
+
+    public String getComics() {
+        return mComics;
+    }
+
+    public void setComics(String comics) {
+        mComics = comics;
     }
 }
 

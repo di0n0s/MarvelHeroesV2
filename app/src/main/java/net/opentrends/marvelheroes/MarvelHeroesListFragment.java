@@ -40,7 +40,7 @@ public class MarvelHeroesListFragment extends Fragment {
     private List<MarvelHeroe> mMarvelHeroes = new ArrayList<>();
 
     private RecyclerView mMarvelHeroeRecyclerView;
-    private MarvelHeroeAdapter mMarvelHeroeAdapter;
+    private MarvelHeroeAdapter mMarvelHeroeAdapter = new MarvelHeroeAdapter(mMarvelHeroes);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +82,7 @@ public class MarvelHeroesListFragment extends Fragment {
 
     private void updateHeroesUI(){
         MarvelHeroeSingleton marvelHeroeSingleton = MarvelHeroeSingleton.getInstance(); //Cargamos una instancia del Singleton
-        List<MarvelHeroe> marvelHeroes = marvelHeroeSingleton.getMarvelHeroes(); //Cargamos los heroes sobre el List
+        //List<MarvelHeroe> marvelHeroes = marvelHeroeSingleton.getMarvelHeroes(); //Cargamos los heroes sobre el List
 
         //mMarvelHeroeAdapter = new MarvelHeroeAdapter(marvelHeroes); //Cargamos una nueva instancia del adaptador con el list
         //mMarvelHeroeRecyclerView.setAdapter(new MarvelHeroeAdapter(mMarvelHeroeAdapter));
@@ -141,7 +141,7 @@ public class MarvelHeroesListFragment extends Fragment {
             mMarvelHeroes = marvelHeroes;
             mMarvelHeroesFilter = new ArrayList<>(); //Creamos un nuevo list de heroes filtrados
             mMarvelHeroesFilter.addAll(marvelHeroes); //Los añadimos
-            mCustomFilter = new CustomFilter(mMarvelHeroeAdapter);
+            mCustomFilter = new CustomFilter(MarvelHeroeAdapter.this);
         }
 
         @Override
@@ -167,47 +167,49 @@ public class MarvelHeroesListFragment extends Fragment {
         public Filter getFilter() {
             return mCustomFilter;
         }
-    }
 
-    public class CustomFilter extends Filter{ //Clase interna para hacer el filtrado con el buscador
+        public class CustomFilter extends Filter{ //Clase interna para hacer el filtrado con el buscador
 
-        private MarvelHeroeAdapter mMarvelHeroeAdapter;
+            private MarvelHeroeAdapter mMarvelHeroeAdapter;
 
-        private CustomFilter(MarvelHeroeAdapter marvelHeroeAdapter) {
-            super();
-            mMarvelHeroeAdapter = marvelHeroeAdapter;
-        }
+            private CustomFilter(MarvelHeroeAdapter marvelHeroeAdapter) {
+                super();
+                mMarvelHeroeAdapter = marvelHeroeAdapter;
+            }
 
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            mMarvelHeroeAdapter.mMarvelHeroesFilter.clear();
-            final FilterResults results = new FilterResults();
-            if(constraint.length() < 3){ //A partir de 3 caracteres
-                mMarvelHeroeAdapter.mMarvelHeroesFilter.addAll(mMarvelHeroeAdapter.mMarvelHeroes);
-            } else {
-                final String filterPattern = constraint.toString().toLowerCase().trim();
-                for (final MarvelHeroe marvelHeroe : mMarvelHeroeAdapter.mMarvelHeroes){
-                    if(marvelHeroe.getName().toLowerCase().contains(filterPattern)){
-                        mMarvelHeroeAdapter.mMarvelHeroesFilter.add(marvelHeroe);
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+            mMarvelHeroesFilter.clear();
+                final FilterResults results = new FilterResults();
+                if(constraint.length() > 3){ //A partir de 3 caracteres
+                mMarvelHeroesFilter.addAll(mMarvelHeroes);
+                } else {
+                    final String filterPattern = constraint.toString().toLowerCase().trim();
+                    for (final MarvelHeroe marvelHeroe : mMarvelHeroes){
+                        if(marvelHeroe.getName().toLowerCase().contains(filterPattern)){
+                        mMarvelHeroesFilter.add(marvelHeroe);
+                            Log.i(TAG,"Tamaño de Heroes Filter: "+mMarvelHeroesFilter.size());
+                        }
                     }
                 }
+                results.values = mMarvelHeroesFilter;
+                results.count = mMarvelHeroesFilter.size();
+                return results;
             }
-            results.values = mMarvelHeroeAdapter.mMarvelHeroesFilter;
-            results.count = mMarvelHeroeAdapter.mMarvelHeroesFilter.size();
-            return results;
-        }
 
-        @Override
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            MarvelHeroeSingleton marvelHeroeSingleton = MarvelHeroeSingleton.getInstance();
-            List<MarvelHeroe> marvelHeroes = marvelHeroeSingleton.getMarvelHeroes();
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
 
-            if (mMarvelHeroeAdapter == null){
-                mMarvelHeroeAdapter = new MarvelHeroeAdapter(marvelHeroes);
-                mMarvelHeroeRecyclerView.setAdapter(mMarvelHeroeAdapter);
+                MarvelHeroeSingleton marvelHeroeSingleton = MarvelHeroeSingleton.getInstance();
+
+//                if(isAdded()) { //Si el fragment está unido a la activity
+                    mMarvelHeroeRecyclerView.setAdapter(new MarvelHeroeAdapter(mMarvelHeroesFilter)); //Modificamos el RecyclerView añadiendo el adapter
+                    marvelHeroeSingleton.setMarvelHeroes(mMarvelHeroesFilter);
+//                } //else this.mMarvelHeroeAdapter.notifyDataSetChanged();
+
+                mMarvelHeroeAdapter.notifyDataSetChanged();
+
             }
-            mMarvelHeroeAdapter.notifyDataSetChanged(); //Notifica los cambios que se hayan producido.
-
         }
     }
 
@@ -221,7 +223,7 @@ public class MarvelHeroesListFragment extends Fragment {
         @Override
         protected void onPostExecute(List<MarvelHeroe> marvelHeroes) {
             mMarvelHeroes = marvelHeroes;
-            updateHeroesUI(); //Repasar!! setupAdapter()! ¿Actualizará bien el adapter?
+            updateHeroesUI();
         }
     }
 

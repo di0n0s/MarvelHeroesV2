@@ -62,7 +62,7 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_marvel_heroe, container, false); //false --> no se va a añadir la vista despleagada a la del padre, sino al código del Activity
@@ -72,6 +72,7 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
         Picasso.with(getActivity())
                 .load(mMarvelHeroe.getImage())
                 .placeholder(null)
+                .resize(75,75)
                 .into(mMHImageView);
 
         mMHNameTextView = (TextView) view.findViewById(R.id.marvel_heroe_name_text_view);
@@ -84,34 +85,42 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
         mDetailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri = Uri.parse("http://www.elsmillorscines.com/");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
+                if(mMarvelHeroe.getDetails()!=null){
+                    Uri uri = Uri.parse(mMarvelHeroe.getDetails());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                } else Toast.makeText(getActivity(),R.string.no_resource, Toast.LENGTH_SHORT).show();
             }
         });
         mWikiButton = (Button) view.findViewById(R.id.wiki_button);
         mWikiButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri = Uri.parse("http://www.elsmillorscines.com/");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
+                if(mMarvelHeroe.getWiki()!=null){
+                    Uri uri = Uri.parse(mMarvelHeroe.getWiki());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                } else Toast.makeText(getActivity(),R.string.no_resource, Toast.LENGTH_SHORT).show();
             }
         });
         mComicsButton = (Button) view.findViewById(R.id.comics_button);
         mComicsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri = Uri.parse("http://www.elsmillorscines.com/");
-                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                startActivity(intent);
+                if(mMarvelHeroe.getComics()!=null){
+                    Uri uri = Uri.parse(mMarvelHeroe.getComics());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                } else Toast.makeText(getActivity(),R.string.no_resource, Toast.LENGTH_SHORT).show();
             }
         });
 
         mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
+        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.tab_comics)//Añadimos las pestañas
+                .setCustomView(mMarvelComicRecyclerView));
         mTabLayout.addTab(mTabLayout.newTab()
-                .setText(mMarvelComics.size()));//Añadimos las pestañas
-        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.tab_eventos));
+                .setCustomView(null)
+                .setText(R.string.tab_eventos));
 
         mMarvelComicRecyclerView = (RecyclerView) view.findViewById(R.id.comics_recycler_view);//Cargamos el RecyclerView
         mMarvelComicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity())); //Configuramos el LayoutManager de manera Vertical
@@ -155,9 +164,10 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
             Picasso.with(getActivity())
                     .load(mMarvelComic.getImage())
                     .placeholder(null)
+                    .resize(75,75)
                     .into(mMCImageView);
             mTitleTextView.setText(mMarvelComic.getTitle());
-            mDecriptionTextView.setText(mMarvelComic.getTitle());
+            mDecriptionTextView.setText(mMarvelComic.getDecription());
         }
 
     }

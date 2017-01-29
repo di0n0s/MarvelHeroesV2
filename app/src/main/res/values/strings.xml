@@ -9,4 +9,5 @@
     <string name="looking_for_name">nombre a buscar...</string>
     <string name="tab_comics">COMICS</string>
     <string name="tab_eventos">EVENTOS</string>
+    <string name="no_resource">El recurso no existe</string>
 </resources>

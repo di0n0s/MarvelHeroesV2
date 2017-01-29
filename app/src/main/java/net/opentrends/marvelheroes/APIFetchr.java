@@ -30,6 +30,8 @@ public class APIFetchr { //Clase para establecer la conexión
 
     private static final String TS = "1";
 
+    private static final String LIMIT = "100";
+
     public byte[] getUrlBytes(String urlSpec) throws IOException{
         URL url = new URL(urlSpec); //Crea un objeto URL al pasarle un String
         HttpURLConnection connection = (HttpURLConnection)url.openConnection(); //Abre una conexión apuntando a la URL
@@ -63,6 +65,7 @@ public class APIFetchr { //Clase para establecer la conexión
         try {
             String url = Uri.parse("http://gateway.marvel.com:80/v1/public/characters")
                     .buildUpon()
+                    .appendQueryParameter("limit", LIMIT)
                     .appendQueryParameter("ts", TS)
                     .appendQueryParameter("apikey", API_KEY)
                     .appendQueryParameter("hash", HASH)
@@ -85,6 +88,7 @@ public class APIFetchr { //Clase para establecer la conexión
         try {
             String url = Uri.parse("http://gateway.marvel.com:80/v1/public/characters/"+marvelHeroe.getId()+"/comics")
                     .buildUpon()
+                    .appendQueryParameter("limit", LIMIT)
                     .appendQueryParameter("ts", TS)
                     .appendQueryParameter("apikey", API_KEY)
                     .appendQueryParameter("hash", HASH)
@@ -115,7 +119,22 @@ public class APIFetchr { //Clase para establecer la conexión
             marvelHeroe.setId(heroeJsonObject.getInt("id"));
             marvelHeroe.setName(heroeJsonObject.getString("name"));
             marvelHeroe.setDescription(heroeJsonObject.getString("description"));
-            marvelHeroe.setImage(heroeJsonObject.getString("thumbnail"));
+            JSONObject image = heroeJsonObject.getJSONObject("thumbnail");
+            String path = image.getString("path");
+            String ext = image.getString("extension");
+            marvelHeroe.setImage(path+"."+ext);
+            JSONArray urlJSONArray = heroeJsonObject.getJSONArray("urls");
+            for(int j = 0; j < urlJSONArray.length(); j++){
+                JSONObject urlJSONObject = urlJSONArray.getJSONObject(j);
+                if (j==0){
+                    marvelHeroe.setDetails(urlJSONObject.getString("url"));
+                } else if(j==1){
+                    marvelHeroe.setWiki(urlJSONObject.getString("url"));
+                } else if(j==2){
+                    marvelHeroe.setComics(urlJSONObject.getString("url"));
+                }
+            }
+            //Log.i(TAG, "Urls: "+marvelHeroe.getComics());
 
             marvelHeroes.add(marvelHeroe);
         }
@@ -130,10 +149,13 @@ public class APIFetchr { //Clase para establecer la conexión
 
             MarvelComic marvelComic = new MarvelComic();
             marvelComic.setId(comicJsonObject.getInt("id"));
-            marvelComic.setTitle(comicJsonObject.getString("name"));
+            marvelComic.setTitle(comicJsonObject.getString("title"));
             marvelComic.setDecription(comicJsonObject.getString("description"));
             marvelComic.setImage(comicJsonObject.getString("thumbnail"));
-
+            JSONObject image = comicJsonObject.getJSONObject("thumbnail");
+            String path = image.getString("path");
+            String ext = image.getString("extension");
+            marvelComic.setImage(path+"."+ext);
             marvelComics.add(marvelComic);
         }
     }
