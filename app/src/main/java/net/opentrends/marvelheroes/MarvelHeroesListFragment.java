@@ -4,6 +4,8 @@ package net.opentrends.marvelheroes;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +27,10 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 
 /**
@@ -42,12 +47,151 @@ public class MarvelHeroesListFragment extends Fragment {
     private RecyclerView mMarvelHeroeRecyclerView;
     private MarvelHeroeAdapter mMarvelHeroeAdapter = new MarvelHeroeAdapter(mMarvelHeroes);
 
+    private LookingForMarvelHeroe<MarvelHeroeHolder> mLookingForMarvelHeroe;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true); //Retiene el Fragment
         new FetchItemsTask().execute(); //Arranca el AsyncTask
-    }
+
+//        Handler responseHandler = new Handler();
+//        mLookingForMarvelHeroe = new LookingForMarvelHeroe<>(responseHandler);
+//        mLookingForMarvelHeroe.setLookingForMarvelHeroeListener(new LookingForMarvelHeroe.LookingForMarvelHeroeListener<MarvelHeroeHolder>() {
+//            @Override
+//            public void onLookingForMarvelHeroeDownloaded(MarvelHeroeHolder target, List<MarvelHeroe> marvelHeroes) {
+//                List<MarvelHeroe> marvelHeroesFiltrados = new List<MarvelHeroe>() {
+//                    @Override
+//                    public int size() {
+//                        return 0;
+//                    }
+//
+//                    @Override
+//                    public boolean isEmpty() {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean contains(Object o) {
+//                        return false;
+//                    }
+//
+//                    @NonNull
+//                    @Override
+//                    public Iterator<MarvelHeroe> iterator() {
+//                        return null;
+//                    }
+//
+//                    @NonNull
+//                    @Override
+//                    public Object[] toArray() {
+//                        return new Object[0];
+//                    }
+//
+//                    @NonNull
+//                    @Override
+//                    public <T> T[] toArray(T[] a) {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public boolean add(MarvelHeroe marvelHeroe) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean remove(Object o) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean containsAll(Collection<?> c) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean addAll(Collection<? extends MarvelHeroe> c) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean addAll(int index, Collection<? extends MarvelHeroe> c) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean removeAll(Collection<?> c) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean retainAll(Collection<?> c) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public void clear() {
+//
+//                    }
+//
+//                    @Override
+//                    public MarvelHeroe get(int index) {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public MarvelHeroe set(int index, MarvelHeroe element) {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public void add(int index, MarvelHeroe element) {
+//
+//                    }
+//
+//                    @Override
+//                    public MarvelHeroe remove(int index) {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public int indexOf(Object o) {
+//                        return 0;
+//                    }
+//
+//                    @Override
+//                    public int lastIndexOf(Object o) {
+//                        return 0;
+//                    }
+//
+//                    @Override
+//                    public ListIterator<MarvelHeroe> listIterator() {
+//                        return null;
+//                    }
+//
+//                    @NonNull
+//                    @Override
+//                    public ListIterator<MarvelHeroe> listIterator(int index) {
+//                        return null;
+//                    }
+//
+//                    @NonNull
+//                    @Override
+//                    public List<MarvelHeroe> subList(int fromIndex, int toIndex) {
+//                        return null;
+//                    }
+//                };
+//                for(MarvelHeroe marvelHeroeFiltrado : marvelHeroesFiltrados){
+//                    target.bindMarvelHeroe(marvelHeroeFiltrado);
+//                }
+//                mLookingForMarvelHeroe.start();
+//                mLookingForMarvelHeroe.getLooper();
+//                Log.i(TAG, "Background thread started");
+//            }
+//        });
+
+        }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,7 +207,21 @@ public class MarvelHeroesListFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    mMarvelHeroeAdapter.getFilter().filter(s.toString());
+                List<MarvelHeroe> marvelHeroesFiltrado = new ArrayList<>();
+                List<MarvelHeroe> marvelHeroesOriginales = new ArrayList<>();
+                if(s.length()>=3){
+                    for(MarvelHeroe marvelHeroe : mMarvelHeroes){
+                        if(marvelHeroe.getName().toLowerCase().contains(s)){
+                            marvelHeroesFiltrado.add(marvelHeroe);
+                        }
+                    }
+                    mMarvelHeroes.clear();
+                    mMarvelHeroeAdapter.mMarvelHeroes.addAll(marvelHeroesFiltrado);
+                    updateHeroesUIBuscador(mMarvelHeroeAdapter);
+                } else {
+                    updateHeroesUI();
+                }
+
             }
 
             @Override
@@ -80,15 +238,35 @@ public class MarvelHeroesListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        //mLookingForMarvelHeroe.clearQueue();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mLookingForMarvelHeroe.quit();
+        Log.i(TAG, "Background thread destroyed");
+
+    }
+
     private void updateHeroesUI(){
         MarvelHeroeSingleton marvelHeroeSingleton = MarvelHeroeSingleton.getInstance(); //Cargamos una instancia del Singleton
-        //List<MarvelHeroe> marvelHeroes = marvelHeroeSingleton.getMarvelHeroes(); //Cargamos los heroes sobre el List
 
-        //mMarvelHeroeAdapter = new MarvelHeroeAdapter(marvelHeroes); //Cargamos una nueva instancia del adaptador con el list
-        //mMarvelHeroeRecyclerView.setAdapter(new MarvelHeroeAdapter(mMarvelHeroeAdapter));
         if(isAdded()){ //Si el fragment está unido a la activity
             mMarvelHeroeRecyclerView.setAdapter(new MarvelHeroeAdapter(mMarvelHeroes)/*mMarvelHeroeAdapter*/); //Modificamos el RecyclerView añadiendo el adapter
             marvelHeroeSingleton.setMarvelHeroes(mMarvelHeroes);
+        }
+    }
+
+    private void updateHeroesUIBuscador(MarvelHeroeAdapter marvelHeroeAdapter){
+        MarvelHeroeSingleton marvelHeroeSingleton = MarvelHeroeSingleton.getInstance(); //Cargamos una instancia del Singleton
+
+        if(isAdded()){ //Si el fragment está unido a la activity
+            mMarvelHeroeRecyclerView.setAdapter(marvelHeroeAdapter); //Modificamos el RecyclerView añadiendo el adapter
+            marvelHeroeSingleton.setMarvelHeroes(marvelHeroeAdapter.mMarvelHeroes);
         }
     }
 
@@ -131,17 +309,17 @@ public class MarvelHeroesListFragment extends Fragment {
 
     }
 
-    private class MarvelHeroeAdapter extends RecyclerView.Adapter<MarvelHeroeHolder> implements Filterable{ //Implementamos Filterable para hacer la búsqueda del heroe
+    private class MarvelHeroeAdapter extends RecyclerView.Adapter<MarvelHeroeHolder> /*implements Filterable*/ { //Implementamos Filterable para hacer la búsqueda del heroe
         //Creamos el adapter
         private List<MarvelHeroe> mMarvelHeroes;
-        private List<MarvelHeroe> mMarvelHeroesFilter; //List filtrado
-        private CustomFilter mCustomFilter;
+//        private List<MarvelHeroe> mMarvelHeroesFilter; //List filtrado
+//        private CustomFilter mCustomFilter;
 
         public MarvelHeroeAdapter(List<MarvelHeroe> marvelHeroes) {
             mMarvelHeroes = marvelHeroes;
-            mMarvelHeroesFilter = new ArrayList<>(); //Creamos un nuevo list de heroes filtrados
-            mMarvelHeroesFilter.addAll(marvelHeroes); //Los añadimos
-            mCustomFilter = new CustomFilter(MarvelHeroeAdapter.this);
+//            mMarvelHeroesFilter = new ArrayList<>(); //Creamos un nuevo list de heroes filtrados
+//            mMarvelHeroesFilter.addAll(marvelHeroes); //Los añadimos
+//            mCustomFilter = new CustomFilter(MarvelHeroeAdapter.this);
         }
 
         @Override
@@ -153,65 +331,67 @@ public class MarvelHeroesListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(MarvelHeroeHolder holder, int position) {
-            MarvelHeroe marvelHeroe = mMarvelHeroesFilter.get(position); //Guarda en marvelHeroe el heroe del listado respecto a la posición que le pasamos
+            MarvelHeroe marvelHeroe = mMarvelHeroes.get(position); //Guarda en marvelHeroe el heroe del listado respecto a la posición que le pasamos
             holder.bindMarvelHeroe(marvelHeroe); //Enlazamos una vista de un ViewHolder a un objeto de heroe
+            //mLookingForMarvelHeroe.queueLookingForMarvelHeroe(holder, marvelHeroe.getName());
 
         }
 
         @Override
         public int getItemCount() {
-            return mMarvelHeroesFilter.size(); //Devuelve el tamaño de la lista (filtrada o no)
-        }
-
-        @Override
-        public Filter getFilter() {
-            return mCustomFilter;
-        }
-
-        public class CustomFilter extends Filter{ //Clase interna para hacer el filtrado con el buscador
-
-            private MarvelHeroeAdapter mMarvelHeroeAdapter;
-
-            private CustomFilter(MarvelHeroeAdapter marvelHeroeAdapter) {
-                super();
-                mMarvelHeroeAdapter = marvelHeroeAdapter;
-            }
-
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-            mMarvelHeroesFilter.clear();
-                final FilterResults results = new FilterResults();
-                if(constraint.length() > 3){ //A partir de 3 caracteres
-                mMarvelHeroesFilter.addAll(mMarvelHeroes);
-                } else {
-                    final String filterPattern = constraint.toString().toLowerCase().trim();
-                    for (final MarvelHeroe marvelHeroe : mMarvelHeroes){
-                        if(marvelHeroe.getName().toLowerCase().contains(filterPattern)){
-                        mMarvelHeroesFilter.add(marvelHeroe);
-                            Log.i(TAG,"Tamaño de Heroes Filter: "+mMarvelHeroesFilter.size());
-                        }
-                    }
-                }
-                results.values = mMarvelHeroesFilter;
-                results.count = mMarvelHeroesFilter.size();
-                return results;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-
-                MarvelHeroeSingleton marvelHeroeSingleton = MarvelHeroeSingleton.getInstance();
-
-//                if(isAdded()) { //Si el fragment está unido a la activity
-                    mMarvelHeroeRecyclerView.setAdapter(new MarvelHeroeAdapter(mMarvelHeroesFilter)); //Modificamos el RecyclerView añadiendo el adapter
-                    marvelHeroeSingleton.setMarvelHeroes(mMarvelHeroesFilter);
-//                } //else this.mMarvelHeroeAdapter.notifyDataSetChanged();
-
-                mMarvelHeroeAdapter.notifyDataSetChanged();
-
-            }
+            return mMarvelHeroes.size(); //Devuelve el tamaño de la lista (filtrada o no)
         }
     }
+
+//        @Override
+//        public Filter getFilter() {
+//            return mCustomFilter;
+//        }
+
+//        public class CustomFilter extends Filter{ //Clase interna para hacer el filtrado con el buscador
+//
+//            private MarvelHeroeAdapter mMarvelHeroeAdapter;
+//
+//            private CustomFilter(MarvelHeroeAdapter marvelHeroeAdapter) {
+//                super();
+//                mMarvelHeroeAdapter = marvelHeroeAdapter;
+//            }
+//
+//            @Override
+//            protected FilterResults performFiltering(CharSequence constraint) {
+//            mMarvelHeroesFilter.clear();
+//                final FilterResults results = new FilterResults();
+//                if(constraint.length() > 3){ //A partir de 3 caracteres
+//                mMarvelHeroesFilter.addAll(mMarvelHeroes);
+//                } else {
+//                    final String filterPattern = constraint.toString().toLowerCase().trim();
+//                    for (final MarvelHeroe marvelHeroe : mMarvelHeroes){
+//                        if(marvelHeroe.getName().toLowerCase().contains(filterPattern)){
+//                        mMarvelHeroesFilter.add(marvelHeroe);
+//                            Log.i(TAG,"Tamaño de Heroes Filter: "+mMarvelHeroesFilter.size());
+//                        }
+//                    }
+//                }
+//                results.values = mMarvelHeroesFilter;
+//                results.count = mMarvelHeroesFilter.size();
+//                return results;
+//            }
+//
+//            @Override
+//            protected void publishResults(CharSequence constraint, FilterResults results) {
+//
+//                MarvelHeroeSingleton marvelHeroeSingleton = MarvelHeroeSingleton.getInstance();
+//
+////                if(isAdded()) { //Si el fragment está unido a la activity
+//                    mMarvelHeroeRecyclerView.setAdapter(new MarvelHeroeAdapter(mMarvelHeroesFilter)); //Modificamos el RecyclerView añadiendo el adapter
+//                    marvelHeroeSingleton.setMarvelHeroes(mMarvelHeroesFilter);
+////                } //else this.mMarvelHeroeAdapter.notifyDataSetChanged();
+//
+//                mMarvelHeroeAdapter.notifyDataSetChanged();
+//
+//            }
+//        }
+//    }
 
     private class FetchItemsTask extends AsyncTask<Void, Void, List<MarvelHeroe>>{ //AsyncTask produce un List de heroes
 
@@ -226,7 +406,6 @@ public class MarvelHeroesListFragment extends Fragment {
             updateHeroesUI();
         }
     }
-
 
 
 }

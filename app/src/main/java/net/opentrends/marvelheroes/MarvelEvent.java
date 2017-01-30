@@ -12,12 +12,7 @@ public class MarvelEvent {
     private String mDescription;
     private String mImage;
 
-    public MarvelEvent(int id, MarvelHeroe idHeroe, String title, String description, String image) {
-        mId = id;
-        mIdHeroe = idHeroe;
-        mTitle = title;
-        mDescription = description;
-        mImage = image;
+    public MarvelEvent() {
     }
 
     public int getId() {

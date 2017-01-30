@@ -83,6 +83,30 @@ public class APIFetchr { //Clase para establecer la conexión
         return marvelHeroes;
     }
 
+    public List<MarvelHeroe> getAllHeroesStartsWith(String name){
+        List<MarvelHeroe> marvelHeroes = new ArrayList<>();
+        try {
+            String url = Uri.parse("http://gateway.marvel.com:80/v1/public/characters")
+                    .buildUpon()
+                    .appendQueryParameter("nameStartsWith", name)
+                    .appendQueryParameter("limit", LIMIT)
+                    .appendQueryParameter("ts", TS)
+                    .appendQueryParameter("apikey", API_KEY)
+                    .appendQueryParameter("hash", HASH)
+                    .build().toString(); //Construimos la url completa con los parametros
+
+            String jsonString = getUrlString(url); //Ejecutamos
+            Log.i(TAG, "Received JSON: "+ jsonString);
+            JSONObject jsonBody = new JSONObject(jsonString); //Alberga el JSON en un objeto JSON
+            parseHeroes(marvelHeroes, jsonBody);
+        } catch (IOException ioe){
+            Log.e(TAG, "Failed to fetch items", ioe);
+        } catch (JSONException je) {
+            Log.e(TAG, "Failed to parse JSON", je);
+        }
+        return marvelHeroes;
+    }
+
     public List<MarvelComic> getAllComicsOfHeroe(MarvelHeroe marvelHeroe){
         List<MarvelComic> marvelComics = new ArrayList<>();
         try {
@@ -106,6 +130,28 @@ public class APIFetchr { //Clase para establecer la conexión
        return marvelComics;
     }
 
+    public List<MarvelEvent> getAllEventsofHeroe(MarvelHeroe marvelHeroe){
+        List<MarvelEvent> marvelEvents = new ArrayList<>();
+        try {
+            String url = Uri.parse("http://gateway.marvel.com:80/v1/public/characters/"+marvelHeroe.getId()+"/events")
+                    .buildUpon()
+                    .appendQueryParameter("limit", LIMIT)
+                    .appendQueryParameter("ts", TS)
+                    .appendQueryParameter("apikey", API_KEY)
+                    .appendQueryParameter("hash", HASH)
+                    .build().toString(); //Construimos la url completa con los parametros
+
+            String jsonString = getUrlString(url); //Ejecutamos
+            Log.i(TAG, "Received JSON: "+ jsonString);
+            JSONObject jsonBody = new JSONObject(jsonString); //Alberga el JSON en un objeto JSON
+            parseEvents(marvelEvents, jsonBody);
+        } catch (IOException ioe){
+            Log.e(TAG, "Failed to fetch items", ioe);
+        } catch (JSONException je) {
+            Log.e(TAG, "Failed to parse JSON", je);
+        }
+        return marvelEvents;
+    }
 
 
     private void parseHeroes (List<MarvelHeroe> marvelHeroes, JSONObject jsonBody) throws JSONException { //Coge el JSON y lo alberga según el modelo de datos
@@ -157,6 +203,26 @@ public class APIFetchr { //Clase para establecer la conexión
             String ext = image.getString("extension");
             marvelComic.setImage(path+"."+ext);
             marvelComics.add(marvelComic);
+        }
+    }
+
+    private void parseEvents (List<MarvelEvent> marvelEvents, JSONObject jsonBody) throws JSONException { //Coge el JSON y lo alberga según el modelo de datos
+        JSONObject eventsJsonObject = jsonBody.getJSONObject("data");
+        JSONArray eventsJsonArray = eventsJsonObject.getJSONArray("results");
+
+        for(int i = 0; i < eventsJsonArray.length(); i++){
+            JSONObject eventJsonObject = eventsJsonArray.getJSONObject(i);
+
+            MarvelEvent marvelEvent = new MarvelEvent();
+            marvelEvent.setId(eventJsonObject.getInt("id"));
+            marvelEvent.setTitle(eventJsonObject.getString("title"));
+            marvelEvent.setDescription(eventJsonObject.getString("description"));
+            marvelEvent.setImage(eventJsonObject.getString("thumbnail"));
+            JSONObject image = eventJsonObject.getJSONObject("thumbnail");
+            String path = image.getString("path");
+            String ext = image.getString("extension");
+            marvelEvent.setImage(path+"."+ext);
+            marvelEvents.add(marvelEvent);
         }
     }
 

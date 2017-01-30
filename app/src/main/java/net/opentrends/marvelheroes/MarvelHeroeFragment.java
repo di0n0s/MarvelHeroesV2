@@ -37,6 +37,7 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
     private MarvelHeroe mMarvelHeroe;
     private MarvelComic mMarvelComic;
     private List<MarvelComic> mMarvelComics = new ArrayList<>();
+    private List<MarvelEvent> mMarvelEvents = new ArrayList<>();
 
     private ImageView mMHImageView;
     private TextView mMHNameTextView;
@@ -49,21 +50,26 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
     private RecyclerView mMarvelComicRecyclerView;
     private MarvelComicAdapter mMarvelComicAdapter;
 
+    private RecyclerView mMarvelEventRecyclerView;
+    private MarvelEventAdapter mMarvelEventAdapter;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true); //Retiene el Fragment
-        new FetchItemsTask().execute(); //Arranca el AsyncTask
+        new FetchComicsTask().execute(); //Arranca el AsyncTask
+        new FetchEventsTask().execute();
 
         int marvelHeroId = (int) getArguments().getSerializable(ARG_MARVELHEROE_ID);//Recuperamos los argumentos del fragment
         mMarvelHeroe = MarvelHeroeSingleton.getInstance().getMarvelHeroe(marvelHeroId); //Recuperado, lo utilizamos para buscar el Heroe en el Singleton
-        //mMarvelComic = MarvelComicSingleton.getInstance(getActivity()/*, marvelHeroId*/).getMarvelComic(marvelHeroId); // Y los comics del heroe
+
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
+
 
         View view = inflater.inflate(R.layout.fragment_marvel_heroe, container, false); //false --> no se va a añadir la vista despleagada a la del padre, sino al código del Activity
         //Inflamos la vista
@@ -116,16 +122,39 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
         });
 
         mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
-        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.tab_comics)//Añadimos las pestañas
-                .setCustomView(mMarvelComicRecyclerView));
-        mTabLayout.addTab(mTabLayout.newTab()
-                .setCustomView(null)
-                .setText(R.string.tab_eventos));
+        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.tab_comics));
+        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.tab_eventos));
 
-        mMarvelComicRecyclerView = (RecyclerView) view.findViewById(R.id.comics_recycler_view);//Cargamos el RecyclerView
-        mMarvelComicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity())); //Configuramos el LayoutManager de manera Vertical
 
-        updateComicsUI();
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if(tab.getPosition()==0){
+                    updateComicsUI(); //Carga los comics
+
+                } else if(tab.getPosition()==1){
+                    updateEventsUI(); //Carga los eventos
+
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        mMarvelComicRecyclerView = (RecyclerView) view.findViewById(R.id.both_comic_event_recycler_view);//Cargamos el RecyclerView
+        mMarvelComicRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        mMarvelEventRecyclerView = (RecyclerView) view.findViewById(R.id.both_comic_event_recycler_view);
+        mMarvelEventRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
 
         return view;
     }
@@ -142,11 +171,21 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
         }
     }
 
+    private void updateEventsUI() {
+        if (isAdded()) {
+            MarvelHeroe marvelHeroe = new MarvelHeroe();
+            List<MarvelEvent> marvelEvents = marvelHeroe.getMarvelEvents();   //marvelComicSingleton.getMarvelComics();
+
+            mMarvelEventAdapter = new MarvelEventAdapter(marvelEvents);
+            mMarvelEventRecyclerView.setAdapter(new MarvelEventAdapter(mMarvelEvents)/*mMarvelComicAdapter*/);
+        }
+    }
+
     private class MarvelComicHolder extends RecyclerView.ViewHolder{
 
         private ImageView mMCImageView;
-        private TextView mTitleTextView;
-        private TextView mDecriptionTextView;
+        private TextView mMCTitleTextView;
+        private TextView mMCDecriptionTextView;
 
         private MarvelComic mMarvelComic;
 
@@ -154,8 +193,8 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
             super(itemView);
 
             mMCImageView = (ImageView) itemView.findViewById(R.id.list_item_marvel_comic_image_view); //CAMBIAR
-            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_marvel_comic_title_text_view);
-            mDecriptionTextView = (TextView) itemView.findViewById(R.id.list_item_marvel_comic_description_text_view); //Conectamos los widgets
+            mMCTitleTextView = (TextView) itemView.findViewById(R.id.list_item_marvel_comic_title_text_view);
+            mMCDecriptionTextView = (TextView) itemView.findViewById(R.id.list_item_marvel_comic_description_text_view); //Conectamos los widgets
 
         }
 
@@ -166,8 +205,8 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
                     .placeholder(null)
                     .resize(75,75)
                     .into(mMCImageView);
-            mTitleTextView.setText(mMarvelComic.getTitle());
-            mDecriptionTextView.setText(mMarvelComic.getDecription());
+            mMCTitleTextView.setText(mMarvelComic.getTitle());
+            mMCDecriptionTextView.setText(mMarvelComic.getDecription());
         }
 
     }
@@ -199,25 +238,65 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
             return mMarvelComics.size();
         }
     }
-    /*
-    @Override
-    public void onClick(View v) {
-        String message = "Hola";
-        switch (v.getId()) {
-            case R.id.detail_button:
-                //Log.d()
-                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.wiki_button:
-                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.comics_button:
-                Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-                break;
+
+    private class MarvelEventHolder extends RecyclerView.ViewHolder{
+
+        private ImageView mMEImageView;
+        private TextView mMETitleTextView;
+        private TextView mMEDecriptionTextView;
+
+        private MarvelEvent mMarvelEvent;
+
+        public MarvelEventHolder (View itemView) {
+            super(itemView);
+
+            mMEImageView = (ImageView) itemView.findViewById(R.id.list_item_marvel_event_image_view);
+            mMETitleTextView = (TextView) itemView.findViewById(R.id.list_item_marvel_event_title_text_view);
+            mMEDecriptionTextView = (TextView) itemView.findViewById(R.id.list_item_marvel_event_description_text_view); //Conectamos los widgets
+
+        }
+
+        public void bindMarvelEvent(MarvelEvent marvelEvent){
+            mMarvelEvent = marvelEvent;
+            Picasso.with(getActivity())
+                    .load(mMarvelEvent.getImage())
+                    .placeholder(null)
+                    .resize(75,75)
+                    .into(mMEImageView);
+            mMETitleTextView.setText(mMarvelEvent.getTitle());
+            mMEDecriptionTextView.setText(mMarvelEvent.getDescription());
         }
 
     }
-    */
+
+    private class MarvelEventAdapter extends RecyclerView.Adapter<MarvelEventHolder>{
+
+        private List<MarvelEvent> mMarvelEvents;
+
+        public MarvelEventAdapter(List<MarvelEvent> marvelEvents) {
+            mMarvelEvents = marvelEvents;
+        }
+
+        @Override
+        public MarvelEventHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+            View view = layoutInflater.inflate(R.layout.list_item_marvel_event, parent, false);
+            return new MarvelEventHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(MarvelEventHolder holder, int position) {
+            MarvelEvent marvelEvent = mMarvelEvents.get(position);
+            holder.bindMarvelEvent(marvelEvent);
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return mMarvelEvents.size();
+        }
+    }
+
     public static MarvelHeroeFragment newInstance(int marvelHeroId){
         Bundle args = new Bundle();
         args.putInt(ARG_MARVELHEROE_ID, marvelHeroId); //Creamos un conjunto de argumentos
@@ -228,7 +307,7 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
 
     }
 
-    private class FetchItemsTask extends AsyncTask<Void, Void, List<MarvelComic>> { //AsyncTask produce un List de heroes
+    private class FetchComicsTask extends AsyncTask<Void, Void, List<MarvelComic>> { //AsyncTask produce un List de heroes
 
         @Override
         protected List<MarvelComic> doInBackground(Void... params) { //En background
@@ -241,4 +320,19 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
             updateComicsUI();
         }
     }
+
+    private class FetchEventsTask extends AsyncTask<Void, Void, List<MarvelEvent>>{
+
+        @Override
+        protected List<MarvelEvent> doInBackground(Void... params) {
+            return new APIFetchr().getAllEventsofHeroe(mMarvelHeroe);
+        }
+
+        @Override
+        protected void onPostExecute(List<MarvelEvent> marvelEvents) {
+            mMarvelEvents = marvelEvents;
+            updateEventsUI();
+        }
+    }
+
 }
