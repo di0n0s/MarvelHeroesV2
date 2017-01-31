@@ -1,4 +1,4 @@
-package net.opentrends.marvelheroes;
+package net.opentrends.marvelheroes.controller;
 
 import android.content.Context;
 import android.content.Intent;

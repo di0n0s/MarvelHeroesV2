@@ -11,15 +11,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MarvelSplashScreen">
+            android:name=".controller.MarvelSplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".MarvelHeroeActivity"/>
-        <activity android:name=".MarvelHeroesListActivity"
+        <activity android:name=".controller.MarvelHeroeActivity"/>
+        <activity android:name=".controller.MarvelHeroesListActivity"
                   android:windowSoftInputMode="stateHidden">
         </activity>
     </application>

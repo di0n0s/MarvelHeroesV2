@@ -1,9 +1,11 @@
-package net.opentrends.marvelheroes;
+package net.opentrends.marvelheroes.controller;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+
+import net.opentrends.marvelheroes.R;
 
 public abstract class SingleFragmentActivity extends FragmentActivity {
     //Las activities son idénticas por lo que para no copiar código hago una superclase y hago que las activities herenden de ella.

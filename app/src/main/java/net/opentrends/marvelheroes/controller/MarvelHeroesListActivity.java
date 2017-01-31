@@ -1,4 +1,4 @@
-package net.opentrends.marvelheroes;
+package net.opentrends.marvelheroes.controller;
 
 import android.support.v4.app.Fragment;
 

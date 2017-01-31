@@ -1,7 +1,4 @@
-package net.opentrends.marvelheroes;
-
-import android.graphics.Bitmap;
-import android.net.Uri;
+package net.opentrends.marvelheroes.model;
 
 import java.util.List;
 

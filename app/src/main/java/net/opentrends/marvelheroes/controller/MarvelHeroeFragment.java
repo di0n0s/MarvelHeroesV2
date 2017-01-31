@@ -1,4 +1,4 @@
-package net.opentrends.marvelheroes;
+package net.opentrends.marvelheroes.controller;
 
 
 import android.content.Intent;
@@ -10,19 +10,22 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.net.URI;
+import net.opentrends.marvelheroes.R;
+import net.opentrends.marvelheroes.model.MarvelComic;
+import net.opentrends.marvelheroes.model.MarvelEvent;
+import net.opentrends.marvelheroes.model.MarvelHeroe;
+import net.opentrends.marvelheroes.model.MarvelHeroeSingleton;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +36,8 @@ import java.util.List;
 public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListener*/ {
 
     private static final String ARG_MARVELHEROE_ID = "marvel_heroe_id"; //Clave del argumento del Fragment
+
+    private static final String TAG = "MARVELHEROE";
 
     private MarvelHeroe mMarvelHeroe;
     private MarvelComic mMarvelComic;
@@ -58,7 +63,8 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setRetainInstance(true); //Retiene el Fragment
         new FetchComicsTask().execute(); //Arranca el AsyncTask
-        new FetchEventsTask().execute();
+        //new FetchEventsTask().execute();
+
 
         int marvelHeroId = (int) getArguments().getSerializable(ARG_MARVELHEROE_ID);//Recuperamos los argumentos del fragment
         mMarvelHeroe = MarvelHeroeSingleton.getInstance().getMarvelHeroe(marvelHeroId); //Recuperado, lo utilizamos para buscar el Heroe en el Singleton
@@ -122,7 +128,9 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
         });
 
         mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
-        mTabLayout.addTab(mTabLayout.newTab().setText(R.string.tab_comics));
+        mTabLayout.addTab(mTabLayout.newTab()
+                .setText(R.string.tab_comics));
+
         mTabLayout.addTab(mTabLayout.newTab().setText(R.string.tab_eventos));
 
 
@@ -130,9 +138,18 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    if (mMarvelComics.isEmpty()){
+                        Toast.makeText(getActivity(), R.string.no_resource, Toast.LENGTH_SHORT).show();
+                        updateComicsUI(); //Carga los comics
+                    }
                     updateComicsUI(); //Carga los comics
 
                 } else if(tab.getPosition()==1){
+                    if (mMarvelEvents.isEmpty()){
+                        new FetchEventsTask().execute();
+                        Toast.makeText(getActivity(), R.string.no_resource, Toast.LENGTH_SHORT).show();
+                        updateEventsUI(); //Carga los eventos
+                    }
                     updateEventsUI(); //Carga los eventos
 
                 }
@@ -160,7 +177,6 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
     }
 
     private void updateComicsUI(){
-        //MarvelComicSingleton marvelComicSingleton = MarvelComicSingleton.getInstance(getActivity());
 
         if(isAdded()) {
             MarvelHeroe marvelHeroe = new MarvelHeroe();
@@ -332,6 +348,11 @@ public class MarvelHeroeFragment extends Fragment /*implements View.OnClickListe
         protected void onPostExecute(List<MarvelEvent> marvelEvents) {
             mMarvelEvents = marvelEvents;
             updateEventsUI();
+        }
+
+        @Override
+        protected void onCancelled(List<MarvelEvent> marvelEvents) {
+            super.onCancelled(marvelEvents);
         }
     }
 

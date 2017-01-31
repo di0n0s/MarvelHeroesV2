@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MarvelHeroesListFragment">
+    tools:context=".controller.MarvelHeroesListFragment">
 
     <TextView
         android:layout_width="match_parent"
@@ -28,7 +28,7 @@
         android:id="@+id/heroe_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="net.opentrends.marvelheroes.MarvelHeroesListFragment">
+        tools:context="net.opentrends.marvelheroes.controller.MarvelHeroesListFragment">
 
 
 

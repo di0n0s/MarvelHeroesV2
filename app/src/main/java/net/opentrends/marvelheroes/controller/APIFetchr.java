@@ -1,13 +1,16 @@
-package net.opentrends.marvelheroes;
+package net.opentrends.marvelheroes.controller;
 
 import android.net.Uri;
 import android.util.Log;
+
+import net.opentrends.marvelheroes.model.MarvelComic;
+import net.opentrends.marvelheroes.model.MarvelEvent;
+import net.opentrends.marvelheroes.model.MarvelHeroe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

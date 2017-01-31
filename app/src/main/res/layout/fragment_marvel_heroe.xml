@@ -4,7 +4,7 @@
               android:layout_width="match_parent" 
               android:layout_height="match_parent" 
               android:orientation="vertical" 
-              tools:context="net.opentrends.marvelheroes.MarvelHeroeFragment">
+              tools:context="net.opentrends.marvelheroes.controller.MarvelHeroeFragment">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"
@@ -97,7 +97,7 @@
         android:id="@+id/both_comic_event_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context="net.opentrends.marvelheroes.MarvelHeroeFragment">
+        tools:context="net.opentrends.marvelheroes.controller.MarvelHeroeFragment">
 
     </android.support.v7.widget.RecyclerView>
 

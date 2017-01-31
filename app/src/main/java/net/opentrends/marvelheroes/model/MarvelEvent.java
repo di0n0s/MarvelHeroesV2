@@ -1,4 +1,4 @@
-package net.opentrends.marvelheroes;
+package net.opentrends.marvelheroes.model;
 
 /**
  * Created by sfcar on 28/01/2017.
